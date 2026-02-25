@@ -70,6 +70,58 @@ app.get("/users/:id", (req, res) => {
     });
 });
 
+// PUT /users/:id (Update user)
+app.put("/users/:id", (req, res) => {
+    const id = parseInt(req.params.id);
+    const userIndex = users.findIndex((u) => u.id === id);
+
+    if (userIndex === -1) {
+        return res.status(404).json({
+            success: false,
+            message: "User not found",
+        });
+    }
+
+    const { name, email, age, city } = req.body;
+
+    // Update the user object while keeping the original ID and createdAt
+    users[userIndex] = {
+        ...users[userIndex],
+        name: name || users[userIndex].name,
+        email: email || users[userIndex].email,
+        age: age || users[userIndex].age,
+        city: city || users[userIndex].city,
+        updatedAt: new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })
+    };
+
+    res.json({
+        success: true,
+        message: "User updated successfully",
+        data: users[userIndex],
+    });
+});
+
+// DELETE /users/:id (Delete user)
+app.delete("/users/:id", (req, res) => {
+    const id = parseInt(req.params.id);
+    const initialLength = users.length;
+    
+    // Filter out the user with the matching ID
+    users = users.filter((u) => u.id !== id);
+
+    if (users.length === initialLength) {
+        return res.status(404).json({
+            success: false,
+            message: "User not found",
+        });
+    }
+
+    res.json({
+        success: true,
+        message: `User with ID ${id} deleted successfully`,
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
